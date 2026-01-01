@@ -1,0 +1,13 @@
+{
+    "extends": "@apify/tsconfig",
+    "compilerOptions": {
+        "module": "esnext",
+        "moduleResolution": "bundler",
+        "target": "esnext",
+        "outDir": "dist",
+        "noUnusedLocals": false,
+        "skipLibCheck": true,
+        "lib": ["DOM"]
+    },
+    "include": ["./src/**/*", "./test/**/*"]
+}

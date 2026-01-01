@@ -1,0 +1,39 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Actor snapshots Actor ID provided, one result 1`] = `
+[
+  {
+    "actorId": "N8vqwV9wL9wpIsLDz",
+    "categories": [
+      "SOCIAL_MEDIA",
+      "ECOMMERCE",
+      "OTHER",
+    ],
+    "name": "google-ads-scraper",
+    "pictureUrl": "https://apify-image-",
+    "title": "Google Ads Scraper",
+    "userFullName": "Gustavo Silva (Coherent Paradox)",
+    "username": "silva95gustavo",
+  },
+]
+`;
+
+exports[`Actor snapshots Actor ID, query and username provided, one result 1`] = `
+[
+  {
+    "actorId": "N8vqwV9wL9wpIsLDz",
+    "categories": [
+      "SOCIAL_MEDIA",
+      "ECOMMERCE",
+      "OTHER",
+    ],
+    "name": "google-ads-scraper",
+    "pictureUrl": "https://apify-image-",
+    "title": "Google Ads Scraper",
+    "userFullName": "Gustavo Silva (Coherent Paradox)",
+    "username": "silva95gustavo",
+  },
+]
+`;
+
+exports[`Actor snapshots Query with zero matches 1`] = `[]`;

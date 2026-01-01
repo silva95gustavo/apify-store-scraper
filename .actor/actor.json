@@ -1,0 +1,9 @@
+{
+    "actorSpecification": 1,
+    "name": "apify-store-scraper",
+    "title": "Apify Store Scraper",
+    "description": "Scrapes actors from Apify Store.",
+    "version": "1.0",
+    "buildTag": "latest",
+    "dockerfile": "./Dockerfile"
+}
