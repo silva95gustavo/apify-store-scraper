@@ -1,12 +1,10 @@
 # How I test my Apify actors efficiently during development with Crawlee and JavaScript
 
-**Note:** This tutorial uses Crawlee and JavaScript.
-
-**Full code:** The Apify Store Scraper used in this article is available on [GitHub](https://github.com/silva95gustavo/apify-store-scraper).
-
 When I started building scraping actors in Apify, my iteration cycle was brutal: make a change, run the actor, wait over a minute for HTTP responses, inspect output, repeat. A few weeks later, it was clear I needed a better testing strategy.
 
 I built three Apify actors ([Google](https://apify.com/silva95gustavo/google-ads-scraper), [LinkedIn](https://apify.com/silva95gustavo/linkedin-ad-library-scraper), and [TikTok](https://apify.com/silva95gustavo/tiktok-ads-scraper) ad scrapers) and developed a testing approach using **local debugging**, **E2E testing**, and **unit testing**. It cut my iteration time dramatically and allowed me to catch many bugs before production. I'll walk through this using an [Apify store scraper](https://github.com/silva95gustavo/apify-store-scraper) as a simpler example.
+
+**Full code:** The Apify Store Scraper used in this article is available on [GitHub](https://github.com/silva95gustavo/apify-store-scraper).
 
 ![Test suite for the Apify Store scraper](docs/images/tests-passing.png)
 
@@ -97,6 +95,8 @@ export async function runActorWithInput(
 
 This function sets up a temporary local storage directory, writes the input to `INPUT.json`, runs the actor with `apify run`, captures the output dataset items, and cleans up afterward. It also collects logs for debugging purposes.
 
+I use `spawn` to run the actor in a completely isolated process. This ensures that environment variables (like the local storage directory) are fresh for every test and don't leak between runs.
+
 With this helper in place, I can write integration tests that verify specific behaviors without relying on snapshots. Here are two examples for our Apify Store scraper:
 
 ```typescript
@@ -141,7 +141,7 @@ Another strategy that has been working really well for me when E2E testing my ac
 
 [Snapshot testing](https://jestjs.io/docs/snapshot-testing) allows me to **capture the output of my actor at a given state** and automatically compare future runs against it. Any unexpected changes are flagged immediately. I can easily test complex structures without writing much code, receive good warnings when something changes, and update tests with ease by just running a command.
 
-In the context of Apify actors, it's very straightforward to select a few input combinations that cover most logic paths, automatically generate their snapshots, and then be much more confident that future changes won't affect the output in unintended ways because the snapshots would break in unexpected places.
+With Apify actors, I find it easy to select a few input combinations that cover most logic paths, automatically generate their snapshots, and then be much more confident that future changes won't affect the output in unintended ways because the snapshots would break in unexpected places.
 
 Before we look at the actual snapshot tests, let me share a helper function I use to sanitize the actor's output data. This is essential for creating stable snapshots that focus on the data we care about, avoiding false positives from dynamic fields.
 
