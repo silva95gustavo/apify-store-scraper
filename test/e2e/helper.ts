@@ -14,7 +14,7 @@ export async function runActorWithInput(
     input: unknown
 ): Promise<{ datasetItems: DatasetItem[]; logs: string }> {
     // Create a temporary directory for local storage
-    const tmpDir = mkdtempSync(path.join(os.tmpdir(), "actor-snap-"));
+    const tmpDir = mkdtempSync(path.join(os.tmpdir(), "actor-e2e-"));
     try {
         // Set up directories for key-value store and datasets
         const kvStoreDir = path.join(tmpDir, "key_value_stores", "default");

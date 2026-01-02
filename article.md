@@ -4,17 +4,15 @@
 
 **Full code:** The Apify Store Scraper used in this article is available on [GitHub](https://github.com/silva95gustavo/apify-store-scraper).
 
-When developing Apify actors, it’s easy to get stuck in slow iteration cycles: running the actor, waiting for HTTP responses, inspecting output, and repeating. Over time, this slows development and makes it hard to ensure nothing breaks when adding new features.
+When I started building scraping actors in Apify, my iteration cycle was brutal: make a change, run the actor, wait over a minute for HTTP responses, inspect output, repeat. A few weeks later, it was clear I needed a better testing strategy.
 
-I’ve refined a process that works well for me, relying on **local debugging**, **E2E testing**, and **unit testing** to speed up iteration and catch regressions early. I've been using this process for all my public actors ([Google](https://apify.com/silva95gustavo/google-ads-scraper), [LinkedIn](https://apify.com/silva95gustavo/linkedin-ad-library-scraper), and [TikTok](https://apify.com/silva95gustavo/tiktok-ads-scraper) ad scrapers). In this article I will be using a simpler example with an [Apify store scraper](https://github.com/silva95gustavo/apify-store-scraper).
+I built three Apify actors ([Google](https://apify.com/silva95gustavo/google-ads-scraper), [LinkedIn](https://apify.com/silva95gustavo/linkedin-ad-library-scraper), and [TikTok](https://apify.com/silva95gustavo/tiktok-ads-scraper) ad scrapers) and developed a testing approach using **local debugging**, **E2E testing**, and **unit testing**. It cut my iteration time dramatically and allowed me to catch many bugs before production. I'll walk through this using an [Apify store scraper](https://github.com/silva95gustavo/apify-store-scraper) as a simpler example.
 
 ## E2E testing
 
-End-to-end (E2E) testing for Apify actors involves running the complete actor locally with real inputs to verify that the entire scraping pipeline works as expected—from input processing to data extraction and output. This catches issues that unit tests might miss, such as integration problems or unexpected behavior in the full flow.
+End-to-end (E2E) testing means running my complete actor locally with real inputs, connecting to the remote server, so nothing is mocked or faked. E2E tests are particularly valuable for me to ensure reliability in production, as they simulate how my actors perform in the actual Apify environment and when interacting with real remote servers.
 
-E2E tests are particularly valuable for ensuring reliability in production, as they simulate how the actor performs in the actual Apify environment.
-
-From my experience developing Apify actors, setting up E2E testing begins with a reliable way to run the actor locally with specific inputs, capture its output, and grab logs for debugging. Here's the helper function I've built and use in my projects:
+From my experience developing Apify actors, setting up E2E testing begins with a reliable way to run the actor locally with specific inputs, capture its output, and grab logs for debugging. Here's the helper function I've built and use in my actors:
 
 ```typescript
 // Function to run the Apify actor locally with given input
@@ -23,7 +21,7 @@ export async function runActorWithInput(
     input: unknown
 ): Promise<{ datasetItems: DatasetItem[]; logs: string }> {
     // Create a temporary directory for local storage
-    const tmpDir = mkdtempSync(path.join(os.tmpdir(), "actor-snap-"));
+    const tmpDir = mkdtempSync(path.join(os.tmpdir(), "actor-e2e-"));
     try {
         // Set up directories for key-value store and datasets
         const kvStoreDir = path.join(tmpDir, "key_value_stores", "default");
@@ -235,28 +233,15 @@ In my workflow, I run the tests with `npm run test`, which in turn runs `npx jes
 
 #### Pitfalls to watch out for in snapshot testing
 
-Snapshot testing is powerful, but it's easy to misuse it. The key is balance: having too many snapshots or ones that are too broad can make your tests slow, brittle, and a pain to upkeep.
+I learned these lessons the hard way:
 
-**Don't create massive snapshots**
-
-The main problem I've seen is snapshots that grow way too big. Maintenance becomes a nightmare, and it drags down your whole testing process. The point of tests is to catch bugs before they ship, but with enormous snapshots, people just skim or ignore them entirely.
-
-Still, even big snapshots have their place. They can flag unexpected ripple effects from your changes that you might not have foreseen.
-
-**Test clarity issues**
-
-Snapshots can sometimes obscure what's actually being tested. Just reading the test might not make it clear what behavior is expected.
-
-Complex snapshots can also hide incorrect assumptions that get baked into the "expected" result. You may want to ensure some assumptions are additionally covered by unit/integration tests.
-
-**Update traps**  
-Since updating snapshots is so straightforward, it's easy for mistakes to slip in unnoticed—don't fall into that trap.
-
-My advice: keep snapshots small and targeted. In the context of an Apify actor consider selecting different input configurations that trigger different code logic and cover any important edge cases.
+-   **Don't create massive snapshots**: My first snapshots were too big. Updating them became tedious, and I stopped trusting them. Keep snapshots focused on one thing.
+-   **Test clarity issues**: Snapshots can sometimes obscure what's actually being tested. I would occasionally find myself not remembering the purpose of tests I had written a few weeks earlier. Just reading the test might not make it clear what specific behavior is the target of the test, so I started making sure to explain the purpose of each test in its description or even as a comment.
+-   **Update traps**: It's tempting to update snapshots without reviewing the diff. Don't. Read what changed before accepting it.
 
 ### Unit testing
 
-While E2E tests are great for testing full actor behavior, **unit tests** let me focus on smaller, complex pieces of logic, with the advantage of being simpler to maintain and orders of magnitude faster to run. For example, in our Apify Store scraper, we need to build filter expressions in Algolia format to query the store's search index. Here's a function that constructs these filters based on input parameters:
+**Unit tests** let me test critical pieces in isolation. For the store scraper, the Apify marketplace uses Algolia search, which requires very specific filter formatting. I learned this by making mistakes—forgetting to escape special characters, misunderstanding the AND operator. Here's the function that handles this:
 
 ```typescript
 import { Input } from "./types";
@@ -276,7 +261,7 @@ export function buildFilters(input: Pick<Input, "actorId" | "username">) {
 }
 ```
 
-This function takes an actor ID or username and builds a filter string like `objectID:"N8vqwV9wL9wpIsLDz" AND username:"silva95gustavo"`, which Algolia uses to narrow down search results. Testing this logic in isolation ensures our filters are constructed correctly without running the full scraper.
+This function takes an actor ID or username and builds a filter string like `objectID:"N8vqwV9wL9wpIsLDz" AND username:"silva95gustavo"`, which Algolia uses to narrow down search results. Testing this logic in isolation ensures filters are constructed correctly without having to run the full scraper.
 
 Here are some unit tests for this function:
 
@@ -335,9 +320,7 @@ tsx src/main.ts
 node --inspect --import tsx src/main.ts
 ```
 
-And that's it! Now you can start placing breakpoints in your IDE and execution will pause wherever you want, allowing you to inspect variables and debug your code.
-
-This approach is particularly useful when working with asynchronous code, Puppeteer/Playwright pages, or complex scraping flows. It makes troubleshooting much faster than relying on console logs alone.
+Now I can set breakpoints and pause execution to inspect variables. Way faster than debugging with log messages.
 
 ### Additional tips
 
@@ -347,10 +330,10 @@ This approach is particularly useful when working with asynchronous code, Puppet
 
 ### Summary
 
-My development workflow relies on three pillars:
+Three practices changed how I work:
 
--   **Local debugging** for step-by-step inspection.
--   **E2E testing** for actor outputs.
--   **Unit testing** for complex logic.
+-   **E2E testing** catches integration issues before production.
+-   **Unit testing** protects critical logic with fast and focused tests.
+-   **Local debugging** with breakpoints catches bugs fast.
 
-Most of my testing happens locally, saving time and resources, which makes developing and maintaining Apify actors faster, reliable, and more scalable.
+This approach cut my iteration time significantly and prevented dozens of production bugs. If I started over, I'd build these tests from day one instead of after problems forced my hand.
