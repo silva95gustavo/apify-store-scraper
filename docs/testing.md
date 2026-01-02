@@ -6,7 +6,7 @@ I built three Apify actors ([Google](https://apify.com/silva95gustavo/google-ads
 
 **Full code:** The Apify Store Scraper used in this article is available on [GitHub](https://github.com/silva95gustavo/apify-store-scraper).
 
-![Test suite for the Apify Store scraper](docs/images/tests-passing.png)
+![Test suite for the Apify Store scraper](../docs/images/tests-passing.png)
 
 ## E2E testing
 
@@ -231,11 +231,11 @@ describe("Actor snapshots", () => {
 
 These tests run the actor with specific inputs, sanitize the results, and check that the output matches the expected snapshot. If anything changes unexpectedly, the snapshot will fail, alerting me to potential issues.
 
-![Snapshot test failure](docs/images/snapshot-test-failure.png)
+![Snapshot test failure](../docs/images/snapshot-test-failure.png)
 
 In my workflow, I run the tests with `npm run test`, which in turn runs `npx jest`. Whenever the snapshots break, I check the diff to understand what broke. If the changes are intended, I update them by simply running `npm run test -- -u`.
 
-![Updating a snapshot](docs/images/snapshot-update.png)
+![Updating a snapshot](../docs/images/snapshot-update.png)
 
 #### Pitfalls to watch out for in snapshot testing
 
@@ -328,7 +328,7 @@ node --inspect --import tsx src/main.ts
 
 Now I can set breakpoints and pause execution to inspect variables. Way faster than debugging with log messages.
 
-![Using breakpoints to examine the response of a HTTP call](docs/images/breakpoints.png)
+![Using breakpoints to examine the response of a HTTP call](../docs/images/breakpoints.png)
 
 ### Additional tips
 
