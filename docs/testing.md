@@ -2,7 +2,7 @@
 
 When I started building scraping actors in Apify, my iteration cycle was brutal: make a change, run the actor, wait over a minute for HTTP responses, inspect output, repeat. A few weeks later, it was clear I needed a better testing strategy.
 
-I built three Apify actors ([Google](https://apify.com/silva95gustavo/google-ads-scraper), [LinkedIn](https://apify.com/silva95gustavo/linkedin-ad-library-scraper), and [TikTok](https://apify.com/silva95gustavo/tiktok-ads-scraper) ad scrapers) and developed a testing approach using **local debugging**, **E2E testing**, and **unit testing**. It cut my iteration time dramatically and allowed me to catch many bugs before production. I'll walk through this using an [Apify store scraper](https://github.com/silva95gustavo/apify-store-scraper) as a simpler example.
+I built three Apify actors ([Google](https://apify.com/silva95gustavo/google-ads-scraper), [LinkedIn](https://apify.com/silva95gustavo/linkedin-ad-library-scraper), and [TikTok](https://apify.com/silva95gustavo/tiktok-ads-scraper) ad scrapers) and developed a testing approach using **local debugging**, **E2E testing**, and **unit testing**. It cut my iteration time dramatically and allowed me to catch many bugs before production. I'll walk through this using an [Apify Store scraper](https://github.com/silva95gustavo/apify-store-scraper) as a simpler example.
 
 **Full code:** The Apify Store Scraper used in this article is available on [GitHub](https://github.com/silva95gustavo/apify-store-scraper).
 
