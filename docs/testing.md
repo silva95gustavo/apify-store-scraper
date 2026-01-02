@@ -247,7 +247,7 @@ I learned these lessons the hard way:
 
 ### Unit testing
 
-**Unit tests** let me test critical pieces in isolation. For the store scraper, the Apify marketplace uses Algolia search, which requires very specific filter formatting. I learned this by making mistakes, forgetting to escape special characters, misunderstanding the AND operator. Here's the function that handles this:
+**Unit tests** let me test critical pieces in isolation. For the store scraper, the Apify marketplace uses Algolia search, which requires very specific filter formatting. Here's the function that handles this:
 
 ```typescript
 import { Input } from "./types";
