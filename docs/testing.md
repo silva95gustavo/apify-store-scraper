@@ -1,4 +1,4 @@
-# How I test my Apify actors efficiently during development with Crawlee and JavaScript
+# How I test my Apify actors efficiently during development with JavaScript
 
 When I started building scraping actors in Apify, my iteration cycle was brutal: make a change, run the actor, wait over a minute for HTTP responses, inspect output, repeat. A few weeks later, it was clear I needed a better testing strategy.
 
